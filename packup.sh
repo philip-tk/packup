@@ -66,7 +66,7 @@ removals=${removals:-1}
 echo "Directories to be removed:" $removals
 
 # If the value of $removals is greater than 0, i.e. one or more backup
-# directories require deletion, run the encases commands.
+# directories require deletion, run the encased commands.
 if [ "$removals" -gt 0 ]; then
 	# Puts the first n fields into $delete_list where n = $removals.
 	delete_list=$(echo $list | cut -f -$removals -d\ )
