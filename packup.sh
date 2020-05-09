@@ -44,3 +44,38 @@ ssh $dest_host \
 # which means it can then be used by the LASTBACKUP variable at the start
 # of the script. It is meant to be at the end of the shellscript.
 ssh $dest_host "echo $dest_dir/$src_folder-$DTG > $dest_dir/last.dir"
+
+# This line puts the list of backup folders into the $list variable
+list=$(ssh $dest_host "cd $dest_dir; echo $src_folder*")
+
+echo "This is the list of backup directories:"
+
+# This for loop loops through the items in the list and prints each entry onto
+# a new line.
+for i in $list; do
+	echo $i | tr -d '/';
+done
+
+# This reads input from the user to see how many of the previous directories
+# would require deletion.
+read -p "Number of directories to remove (default = 1): " removals
+
+# Sets the default value to 1 if no input is given.
+removals=${removals:-1}
+
+echo "Directories to be removed:" $removals
+
+# If the value of $removals is greater than 0, i.e. one or more backup
+# directories require deletion, run the encases commands.
+if [ "$removals" -gt 0 ]; then
+	# Puts the first n fields into $delete_list where n = $removals.
+	delete_list=$(echo $list | cut -f -$removals -d\ )
+	# Loops over each field (backup directory) in $delete_list and removes
+	# each entry recursively and forcefully.
+	for i in $delete_list; do
+		ssh $dest_host "rm -rf $dest_dir/$i"
+	done
+	echo "All done!"
+else
+	echo "All done!"
+fi
